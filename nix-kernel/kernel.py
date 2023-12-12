@@ -25,9 +25,9 @@ class IncrementalOutputWrapper(replwrap.REPLWrapper):
             # "None" means we are executing code from a Jupyter cell by way of the run_command
             # in the do_execute() code below, so do incremental output.
             while True:
-                pos = self.child.expect_exact([self.prompt, self.continuation_prompt, u'\r\n'],
+                pos = self.child.expect_exact([self.prompt, u'\r\n'],
                                               timeout=None)
-                if pos == 2:
+                if pos == 1:
                     # End of line received
                     self.line_output_callback(self.child.before + '\n')
                 else:
@@ -76,10 +76,8 @@ class NixKernel(Kernel):
         try:
             child = pexpect.spawn('nix repl', [], echo=False, encoding='utf-8', codec_errors='replace')
             prompt       = u'nix-repl> '
-            continuation = u'          '
             self.wrapper = IncrementalOutputWrapper(child, prompt, None,
                                         new_prompt=prompt,
-                                        continuation_prompt=continuation,
                                         line_output_callback=self.process_output)
         finally:
             signal.signal(signal.SIGINT, sig)
